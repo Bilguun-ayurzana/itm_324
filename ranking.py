@@ -5,7 +5,6 @@ import networkx as nx
 import json
 import os
 
-# ---------------- CountVectorizer ----------------
 def build_countvec(corpus: List[str], stop_words=None):
     if not corpus:
         return None, None
@@ -13,7 +12,6 @@ def build_countvec(corpus: List[str], stop_words=None):
     matrix = vec.fit_transform(corpus)
     return vec, matrix
 
-# ---------------- PageRank ----------------
 def compute_pagerank_from_json(graph_file: str, damping: float = 0.85) -> Dict[str, float]:
     if not os.path.exists(graph_file):
         return {}
@@ -36,7 +34,6 @@ def normalize_scores(score_dict: Dict[str, float]) -> Dict[str, float]:
         return {k: 1.0 for k in score_dict}
     return {k: (v - min_s) / (max_s - min_s) for k, v in score_dict.items()}
 
-# ---------------- Search ----------------
 def search_query(
     query: str,
     urls: List[str],
@@ -47,14 +44,10 @@ def search_query(
     alpha: float = 0.85,
     top_k: int = 20
 ) -> List[Dict]:
-    """
-    CountVectorizer + raw substring search + PageRank combined search.
-    Handles pages as dicts with {"title":..., "text":...}.
-    """
+   
     if not query or not vectorizer or count_matrix is None:
         return []
 
-    # --- CountVectorizer cosine similarity ---
     try:
         q_vec = vectorizer.transform([query])
         scores = cosine_similarity(q_vec, count_matrix).flatten()
@@ -62,20 +55,17 @@ def search_query(
     except Exception:
         vec_results = {}
 
-    # --- Raw substring search fallback ---
     raw_results = {}
     for url, page in pages.items():
         text = page.get("text","") if isinstance(page, dict) else str(page)
         if query in text:
             raw_results[url] = 1.0
 
-    # --- Merge results ---
     merged_results = vec_results.copy()
     for url, score in raw_results.items():
         if url not in merged_results:
             merged_results[url] = score
 
-    # --- If nothing found, fallback to PageRank only ---
     if not merged_results and pagerank_scores:
         norm_pr = normalize_scores(pagerank_scores)
         ranked_pr = sorted(norm_pr.items(), key=lambda x: x[1], reverse=True)[:top_k]
@@ -87,7 +77,6 @@ def search_query(
             results.append({"url": u, "score": round(s,4), "snippet": snippet})
         return results
 
-    # --- Combine with PageRank ---
     final_scores = {}
     if pagerank_scores:
         norm_pr = normalize_scores(pagerank_scores)
@@ -98,7 +87,6 @@ def search_query(
     else:
         final_scores = merged_results
 
-    # --- Sort and build results ---
     ranked = sorted(final_scores.items(), key=lambda x:x[1], reverse=True)[:top_k]
     results = []
     for u,s in ranked:

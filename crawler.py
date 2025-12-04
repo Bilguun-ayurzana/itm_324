@@ -1,4 +1,3 @@
-# crawler.py
 import time
 import json
 import threading
@@ -9,12 +8,11 @@ from bs4 import BeautifulSoup
 import networkx as nx
 from utils.preprocessing import detect_language, mn_preprocess, en_preprocess
 
-# ---------------- Data structures & config ----------------
 visited = set()
-pages_content = {}      # url -> {"title":..., "text":...}
+pages_content = {}      
 links_graph = nx.DiGraph()
 
-DEFAULT_SEED_URLS = ["https://mn.wikipedia.org/wiki/Нэвтэрхий_толь"]  # default start page
+DEFAULT_SEED_URLS = ["https://mn.wikipedia.org/wiki/Нэвтэрхий_толь"]  
 MAX_PAGES = 500
 REQUEST_DELAY = 0.5
 CRAWL_TIMEOUT = 5
@@ -28,7 +26,6 @@ _session.headers.update({"User-Agent": USER_AGENT})
 _queue = Queue()
 _lock = threading.Lock()
 
-# ---------------- Helpers ----------------
 def normalize_url(raw, base=None):
     try:
         if base:
@@ -41,10 +38,8 @@ def normalize_url(raw, base=None):
         return None
 
 def allowed_by_robots(url):
-    # Placeholder: always allow
     return True
 
-# ---------------- Worker ----------------
 def _worker():
     while True:
         item = _queue.get()
@@ -94,7 +89,6 @@ def _worker():
             links_graph.add_node(url)
             print(f"[crawler] Crawled ({len(visited)}): {url}")
 
-        # Collect links (any domain)
         for a in soup.find_all("a", href=True):
             link = normalize_url(a.get("href"), base=url)
             if not link:
@@ -108,7 +102,6 @@ def _worker():
         time.sleep(REQUEST_DELAY)
         _queue.task_done()
 
-# ---------------- Crawl entrypoint ----------------
 def crawl(seed_urls=None, max_pages=MAX_PAGES, delay=REQUEST_DELAY,
           pages_file=OUTPUT_PAGES_FILE, graph_file=OUTPUT_GRAPH_FILE,
           num_workers=NUM_WORKERS):
@@ -142,7 +135,6 @@ def crawl(seed_urls=None, max_pages=MAX_PAGES, delay=REQUEST_DELAY,
     for t in threads:
         t.join()
 
-    # Save pages.json
     try:
         with open(pages_file, "w", encoding="utf-8") as f:
             json.dump(pages_content, f, ensure_ascii=False, indent=2)
@@ -150,7 +142,6 @@ def crawl(seed_urls=None, max_pages=MAX_PAGES, delay=REQUEST_DELAY,
     except Exception as e:
         print(f"[crawler] Failed to save pages file: {e}")
 
-    # Save graph.json
     try:
         graph_dict = {node: list(links_graph.successors(node)) for node in links_graph.nodes}
         with open(graph_file, "w", encoding="utf-8") as f:

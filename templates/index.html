@@ -10,11 +10,10 @@
 
 <div class="container" role="main">
     <header class="header">
-        <h1>Монгол Википедиа Хайлтын Систем</h1>
-        <p class="lead">Монгол Википедиа дахь өгөгдлөөс хялбар хайлт хийх, crawler-ийг эхлүүлэх интерфейс</p>
+        <h1>Хайлтын Систем</h1>
+        <p class="lead">Монгол болон англи хэл дээрх өгөгдлөөс хялбар хайлт хийх, crawler-ийг эхлүүлэх интерфейс</p>
     </header>
 
-    <!-- Search Form -->
     <form id="search-form" method="post" action="/" class="form-inline" aria-label="Search form">
         <input type="hidden" name="form_type" value="search">
         <div class="input-group">
@@ -24,7 +23,6 @@
         </div>
     </form>
 
-    <!-- Crawl Form -->
     <form id="crawl-form" method="post" action="/" class="form-inline" aria-label="Crawler form">
         <input type="hidden" name="form_type" value="crawl">
         <div class="input-group">
@@ -45,15 +43,12 @@
         <div class="results">
             {% for item in results %}
                 <article class="result" role="article" aria-labelledby="title-{{ loop.index }}">
-                    <!-- Title -->
                     <a id="title-{{ loop.index }}" class="result-title" href="{{ item.url }}" target="_blank" rel="noopener noreferrer" title="{{ item.url }}">
                         {{ item.title if item.title else item.url }}
                     </a>
 
-                    <!-- Explicit URL shown underneath, allowed to wrap without truncation -->
                     <a class="result-url" href="{{ item.url }}" target="_blank" rel="noopener noreferrer">{{ item.url }}</a>
 
-                    <!-- Meta: score / domain -->
                     <div class="meta">
                         <span class="score">Оноо: <b>{{ item.score }}</b></span>
                         {% if item.domain %}
@@ -61,7 +56,6 @@
                         {% endif %}
                     </div>
 
-                    <!-- Snippet -->
                     <p class="snippet">{{ item.snippet|safe }}</p>
                 </article>
             {% endfor %}
