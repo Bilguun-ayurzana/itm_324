@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="mn">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Монгол Википедиа Хайлтын Систем</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+</head>
+<body>
+
+<div class="container" role="main">
+    <header class="header">
+        <h1>Монгол Википедиа Хайлтын Систем</h1>
+        <p class="lead">Монгол Википедиа дахь өгөгдлөөс хялбар хайлт хийх, crawler-ийг эхлүүлэх интерфейс</p>
+    </header>
+
+    <!-- Search Form -->
+    <form id="search-form" method="post" action="/" class="form-inline" aria-label="Search form">
+        <input type="hidden" name="form_type" value="search">
+        <div class="input-group">
+            <label for="query" class="visually-hidden">Асуулт</label>
+            <input id="query" type="text" name="query" value="{{ query }}" placeholder="Асуултаа энд оруулна уу" required aria-required="true" aria-label="Хайлт хийх асуулт">
+            <button type="submit" class="btn btn-primary" aria-label="Хайх">Хайх</button>
+        </div>
+    </form>
+
+    <!-- Crawl Form -->
+    <form id="crawl-form" method="post" action="/" class="form-inline" aria-label="Crawler form">
+        <input type="hidden" name="form_type" value="crawl">
+        <div class="input-group">
+            <label for="seed" class="visually-hidden">Seed URL</label>
+            <input id="seed" type="url" name="seed" placeholder="Seed URL оруулна уу (жишээ: https://mn.wikipedia.org/wiki/...)" required aria-required="true" aria-label="Crawler seed url">
+            <button type="submit" class="btn btn-secondary" aria-label="Crawler эхлүүлэх">Crawler эхлүүлэх</button>
+        </div>
+    </form>
+
+    <div id="status" class="status-area" aria-live="polite">
+        {% if crawl_message %}
+            <p class="crawl-message">{{ crawl_message }}</p>
+        {% endif %}
+    </div>
+
+    {% if results %}
+        <h2>Хайлтын үр дүн:</h2>
+        <div class="results">
+            {% for item in results %}
+                <article class="result" role="article" aria-labelledby="title-{{ loop.index }}">
+                    <!-- Title -->
+                    <a id="title-{{ loop.index }}" class="result-title" href="{{ item.url }}" target="_blank" rel="noopener noreferrer" title="{{ item.url }}">
+                        {{ item.title if item.title else item.url }}
+                    </a>
+
+                    <!-- Explicit URL shown underneath, allowed to wrap without truncation -->
+                    <a class="result-url" href="{{ item.url }}" target="_blank" rel="noopener noreferrer">{{ item.url }}</a>
+
+                    <!-- Meta: score / domain -->
+                    <div class="meta">
+                        <span class="score">Оноо: <b>{{ item.score }}</b></span>
+                        {% if item.domain %}
+                            <span class="domain"> • {{ item.domain }}</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Snippet -->
+                    <p class="snippet">{{ item.snippet|safe }}</p>
+                </article>
+            {% endfor %}
+        </div>
+    {% elif query %}
+        <p class="no-results" role="status">Үр дүн олдсонгүй.</p>
+    {% endif %}
+
+    {% if metrics %}
+        <section class="metrics" aria-label="Үнэлгээний үр дүн">
+            <h3>Үнэлгээний үр дүн:</h3>
+            <ul>
+                <li>Precision: {{ metrics.precision }}</li>
+                <li>Recall: {{ metrics.recall }}</li>
+                <li>F1-score: {{ metrics.f1 }}</li>
+                <li>NDCG: {{ metrics.ndcg }}</li>
+            </ul>
+        </section>
+
+        <div class="metrics-desc" aria-label="Үнэлгээний тайлбар">
+            {% if metrics.description %}
+                {{ metrics.description|safe }}
+            {% else %}
+                <p>Энд үнэлгээний тойм, тайлбар эсвэл нэмэлт контекст байрлана. Жишээ нь, хэрхэн Precision болон Recall тооцогдсон, тестийн сетийн хэмжээ, эсвэл ямар хариултуудыг хэрэглэсэн тухай богино тайлбар оруулах боломжтой.</p>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <footer class="footer">
+        <a href="/pages" class="pages-link" title="Crawled pages">📄 Show Crawled Pages</a>
+        <p class="small">© Монгол Википедиа Хайлтын Систем</p>
+    </footer>
+</div>
+
+</body>
+</html>

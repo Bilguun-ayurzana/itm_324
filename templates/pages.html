@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<title>Хөвшөрсөн Хуудаснууд</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+<style>
+    body { 
+        font-family: Arial, sans-serif; 
+        margin: 20px; 
+        background: #121212; 
+        color: #f0f0f0; 
+    }
+    h2 { 
+        text-align: center; 
+        color: #ff6f3c; 
+        margin-bottom: 20px; 
+    }
+    a.back { 
+        display: inline-block; 
+        margin-bottom: 15px; 
+        text-decoration: none; 
+        color: #1e90ff; 
+        font-weight: 500; 
+    }
+    a.back:hover { text-decoration: underline; }
+
+    .item { 
+        padding: 15px; 
+        border-radius: 8px; 
+        margin-bottom: 12px; 
+        background: #1c1c1c; 
+        box-shadow: 0 2px 5px rgba(0,0,0,0.3); 
+    }
+
+    .item a { 
+        font-weight: 600; 
+        font-size: 1.05em; 
+        color: #1e90ff; 
+        text-decoration: none; 
+        word-break: break-all; /* Wrap long URLs */
+        display: block;
+    }
+
+    .item a:hover { text-decoration: underline; }
+
+    .snippet { 
+        color: #ccc; 
+        margin-top: 6px; 
+        line-height: 1.5; 
+        font-size: 0.95em;
+    }
+</style>
+</head>
+<body>
+
+<h2>📄 Хөвшөрсөн Хуудаснууд ({{ pages|length }})</h2>
+<a class="back" href="/">← Буцах</a>
+<hr>
+
+{% for url, text in pages.items() %}
+<div class="item">
+    <a href="{{ url }}" target="_blank">{{ url }}</a>
+    <div class="snippet">{{ text[:250] }}{% if text|length > 250 %}...{% endif %}</div>
+</div>
+{% endfor %}
+
+</body>
+</html>
